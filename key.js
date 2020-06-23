@@ -1,0 +1,72 @@
+import crypto from "crypto";
+import secp256k1 from "secp256k1";
+import createKeccakHash from "keccak";
+// import { create } from "domain";
+
+function createPrivateKey(){
+    let privateKey;
+    do {
+        privateKey = crypto.randomBytes(32);        
+    } while (secp256k1.privateKeyVerify(privateKey) === false);
+    return privateKey;
+}
+// console.log(createPrivateKey().toString("hex"));//콘솔에 프라이빗 키 생성
+function createPublicKey(privateKey, compressed = false){
+    return Buffer.from(secp256k1.publicKeyCreate(privateKey, compressed));
+}
+
+function createAddress(publicKey){
+    const hash = createKeccakHash("keccak256").update(publicKey.slice(1)).digest("hex");
+    return "0x" + hash.slice(24);
+}
+
+
+function toChecksumAddress (address) {
+    address = address.toLowerCase().replace('0x', '')
+    var hash = createKeccakHash('keccak256').update(address).digest('hex')
+    var ret = '0x'
+  
+    for (var i = 0; i < address.length; i++) {
+      if (parseInt(hash[i], 16) >= 8) {
+        ret += address[i].toUpperCase()
+      } else {
+        ret += address[i]
+      }
+    }
+  
+    return ret
+  }
+
+const privateKey = Buffer.from(
+"A97FF3585799676719316F0D3C9BCFC525A1F799B156467CD3C0D96E4D6F17F7",
+"hex"
+)
+
+
+// const privateKey = createPrivateKey();//랜덤생성
+const publicKey = createPublicKey(privateKey);
+const address = createAddress(publicKey);
+const checksumAddress = toChecksumAddress(address);
+
+console.log(address);
+console.log(checksumAddress);
+
+// let privateKey = createPrivateKey();
+// console.log("Private Key:", privateKey.toString("hex"));
+
+// const privateKey = Buffer.from(
+//     "A97FF3585799676719316F0D3C9BCFC525A1F799B156467CD3C0D96E4D6F17F7",
+//     "hex"
+// );
+
+// const publicKey = createPublicKey(privateKey);
+// const address = createAddress(publicKey);
+
+// console.log(address);
+
+// console.log("Address:", address);
+
+// console.log("Address:", createAddress(createPublicKey(privateKey)));
+
+// console.log(createPublicKey(privateKey).toString("hex"));
+// console.log(createPublicKey(privateKey, true).toString("hex"));
