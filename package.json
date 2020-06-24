@@ -10,6 +10,7 @@
   "license": "ISC",
   "type": "module",
   "dependencies": {
+    "bitcore-mnemonic": "^8.20.4",
     "crypto": "^1.0.1",
     "domain": "0.0.1",
     "git": "^0.1.5",

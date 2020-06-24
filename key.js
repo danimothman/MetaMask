@@ -1,6 +1,7 @@
 import crypto from "crypto";
 import secp256k1 from "secp256k1";
 import createKeccakHash from "keccak";
+import Mnemonic from "bitcore-mnemonic";
 // import { create } from "domain";
 
 function createPrivateKey(){
@@ -37,19 +38,56 @@ function toChecksumAddress (address) {
     return ret
   }
 
-const privateKey = Buffer.from(
-"A97FF3585799676719316F0D3C9BCFC525A1F799B156467CD3C0D96E4D6F17F7",
-"hex"
-)
+function privateKeyToAddress(privateKey){
+  const publicKey = createPublicKey(privateKey);
+  const address = createAddress(publicKey);
+  return toChecksumAddress(address);
+}
+
+function createMnemonic(){
+  if (wordsCount < 12 || wordsCount > 24 || wordsCount % 3 !== 0) {
+    throw new Error("invalid number of words")
+  }
+  const entropy = (16 + (wordsCount - 12) / 3 * 4) * 8;
+  return new Mnemonic(entropy);
+  //return new Mnemonic(crypto.randomBytes(entropy /8));
+}
+
+function mnemonicToPrivateKey(mnemonic){
+  const privateKey = mnemonic.ToHDPrivateKey().derive("m/44'/60'/0'/0/0").privateKey;
+  return Buffer.from(privateKey.toString(), "hex");
+}
+
+// const mnemonic = createMnemonic(24);
+const mnemonic = new Mnemonic("genuine bunker business attitude response fault rule van want b.....");
+console.log(mnemonic.toString());
+
+const privateKey = mnemonicToPrivateKey(mnemonic);
+console.log(privateKey.toString("hex"));
+
+const address = privateKeyToAddress(privateKey);
+console.log(address);
+
+
+
+
+
+
+
+
+// const privateKey = Buffer.from(
+// "A97FF3585799676719316F0D3C9BCFC525A1F799B156467CD3C0D96E4D6F17F7",
+// "hex"
+// )
 
 
 // const privateKey = createPrivateKey();//랜덤생성
-const publicKey = createPublicKey(privateKey);
-const address = createAddress(publicKey);
-const checksumAddress = toChecksumAddress(address);
+// const publicKey = createPublicKey(privateKey);
+// const address = createAddress(publicKey);
+// const checksumAddress = toChecksumAddress(address);
 
-console.log(address);
-console.log(checksumAddress);
+// console.log(address);
+// console.log(checksumAddress);
 
 // let privateKey = createPrivateKey();
 // console.log("Private Key:", privateKey.toString("hex"));
